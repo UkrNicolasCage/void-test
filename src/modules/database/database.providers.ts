@@ -13,7 +13,9 @@ export const databaseProviders = [
                 database: process.env.POSTGRESQL_DATABASE,
                 synchronize: true,
                 logging: true,
-                entities: [],
+                entities: [
+                    `${__dirname}/../**/*.entity{.ts,.js}`,
+                ],
                 migrations: [],
             })
 

@@ -1,7 +1,8 @@
-export interface IGetMatchRes {
+export interface IMatch {
   info: {
     participants: Array<IMatchParticipant>;
     gameDuration: number;
+    gameMode: string;
   }
 }
 
@@ -14,6 +15,9 @@ export interface IMatchParticipant {
   timePlayed: number;
   totalMinionsKilled: number;
   wardsPlaced: number;
+  win: boolean;
+  championName: string;
+  role: string;
 }
 
 export type IPlayerMatchesData = Array<{
@@ -23,3 +27,12 @@ export type IPlayerMatchesData = Array<{
     deaths: number;
     assists: number;
 }>
+
+export interface IMatchStatistics {
+    kda: string;
+    csPerMinute: number;
+    isPlayerWon: boolean;
+    gameMode: string;
+    championUsed: string;
+    role: string;
+}

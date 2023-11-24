@@ -1,3 +1,4 @@
+import type { IMatchStatistics } from '../match/match.types'
 export interface IGetPlayerByNameRes {
 	id: string,
 	accountId: string,
@@ -27,6 +28,7 @@ export interface IGetSummonerRes {
 export interface IGetPlayerInfoRes {
     rank: string;
     name: string;
+    region: string;
     profileIconId: number;
     leaguePoints: number;
     wins: number;
@@ -42,4 +44,19 @@ export interface IAverageData {
     deaths: number;
     kills: number;
     assists: number;
+}
+
+export interface IGetLeaderBoardPlaceRes {
+    leaguePoints: {
+        top: number;
+    };
+    winrate: {
+        top: number;
+    };
+}
+
+export interface IGetPlayerMatchesStatistic {
+    name: string;
+    region: string;
+    matches: Array<IMatchStatistics>;
 }

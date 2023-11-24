@@ -1,11 +1,12 @@
 import { HttpException, Injectable } from '@nestjs/common'
 import axios from 'axios'
 
-import type { IAverageData, IGetPlayerByNameRes, IGetPlayerInfoRes, IGetSummonerRes } from '../player.types'
+import type { IAverageData, IGetPlayerByNameRes, IGetPlayerInfoRes, IGetPlayerMatchesStatistic, IGetSummonerRes } from '../player.types'
 import { MatchService } from '../../../modules/match/match.service'
 import type { IPlayerMatchesData } from '../../../modules/match/match.types'
 
 import { DEFAULT_URL } from '../../../consts'
+import { PlayerService } from './player.service'
 
 @Injectable()
 export class PlayerApiService {
@@ -14,7 +15,8 @@ export class PlayerApiService {
         'X-Riot-Token': process.env['RIOT_API_KEY'],
     }
 
-    constructor(private readonly matchService: MatchService) {}
+    constructor(private readonly matchService: MatchService,
+            private readonly playerService: PlayerService) {}
 
     public async getPlayerByName(name: string, region: string): Promise<IGetPlayerByNameRes> {
         try {
@@ -23,7 +25,6 @@ export class PlayerApiService {
                 {
                     headers: this.headers,
                 })
-
             return response.data
         } catch (error) {
             throw new HttpException(error.message, error.status)
@@ -45,22 +46,48 @@ export class PlayerApiService {
     }
 
     public async getPlayerInfo(name: string, region: string): Promise<IGetPlayerInfoRes> {
-        const player = await this.getPlayerByName(name, region)
-        const summoner = await this.getSummonerByEncryptedAccountId(player.id, region)
-        const matches = await this.matchService.getPlayerMatchesData(player.puuid, region, 10)
+        try {
+            const player = await this.getPlayerByName(name, region)
+            const summoner = await this.getSummonerByEncryptedAccountId(player.id, region)
+            const matches = await this.matchService.getPlayerMatchesData(player.puuid, region, 10)
 
-        const averageData = this.calculateAverageData(matches)
+            const averageData = this.calculateAverageData(matches)
 
-        return {
-            rank: summoner.rank,
-            name: player.name,
-            profileIconId: player.profileIconId,
-            leaguePoints: summoner.leaguePoints,
-            wins: summoner.wins,
-            losses: summoner.losses,
-            kda: `${averageData.kills}/${averageData.deaths}/${averageData.assists}`,
-            averageVisionScore: averageData.wards,
-            csPerMinute: averageData.csPerMinute,
+            await this.saveToDb(summoner, region)
+
+            return {
+                rank: summoner.rank,
+                name: player.name,
+                region: region.toUpperCase(),
+                profileIconId: player.profileIconId,
+                leaguePoints: summoner.leaguePoints,
+                wins: summoner.wins,
+                losses: summoner.losses,
+                kda: `${averageData.kills}/${averageData.deaths}/${averageData.assists}`,
+                averageVisionScore: averageData.wards,
+                csPerMinute: averageData.csPerMinute,
+            }
+        } catch (error) {
+            return error
+        }
+    }
+
+    public async getPlayerMatchesStatistic(name: string, region: string, limit: number, offset)
+    : Promise<IGetPlayerMatchesStatistic> {
+        try {
+            const player = await this.getPlayerByName(name, region)
+            const matches = await this.matchService.getGamesStatistics(player.puuid, region, limit, offset)
+            const summoner = await this.getSummonerByEncryptedAccountId(player.id, region)
+
+            await this.saveToDb(summoner, region)
+
+            return {
+                name: player.name,
+                region: region.toUpperCase(),
+                matches,
+            }
+        } catch (error) {
+            return error
         }
     }
 
@@ -90,5 +117,31 @@ export class PlayerApiService {
             kills: Math.round(totalData.kills / totalMatches),
             assists: Math.round(totalData.assists / totalMatches),
         }
+    }
+
+    private async saveToDb(summoner: IGetSummonerRes, region: string): Promise<void> {
+        const summonerEntity = await this.playerService.findOne(summoner.summonerName)
+
+        if (!summonerEntity) {
+            await this.playerService.create({
+                summonerName: summoner.summonerName,
+                region,
+                winrate: Math.round(summoner.wins / (summoner.wins + summoner.losses) * 100),
+                leaguePoints: summoner.leaguePoints,
+            })
+        } else {
+            await this.playerService.update({
+                ...summonerEntity,
+                winrate: Math.round(summoner.wins / (summoner.wins + summoner.losses) * 100),
+                leaguePoints: summoner.leaguePoints,
+            })
+        }
+
+        await this.playerService.create({
+            summonerName: 'test',
+            region: 'test',
+            winrate: 0,
+            leaguePoints: 0,
+        })
     }
 }

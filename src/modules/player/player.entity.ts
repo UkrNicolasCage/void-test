@@ -9,12 +9,6 @@ export class Player {
   public summonerName: string
 
   @Column('text')
-  public leagueId: string
-
-  @Column('text')
-  public summonerId: string
-
-  @Column('text')
   public region: string
 
   @Column('float')

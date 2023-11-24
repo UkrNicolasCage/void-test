@@ -1,13 +1,24 @@
-/* eslint-disable complexity */
 export const transformRegion = (region: string): string => {
-    if (region.includes('na') || region.includes('br') || region.includes('lan') || region.includes('las')) {
-        return 'americas'
-    } else if (region.includes('kr') || region.includes('jp')) {
-        return 'asia'
-    } else if (region.includes('eune') || region.includes('euw') || region.includes('tr') || region.includes('ru')) {
-        return 'europe'
-    } else if (region.includes('oce') || region.includes('ph') || region.includes('sg') || region.includes('th') || region.includes('vn') || region.includes('tw')) {
-        return 'sea'
+    const regionMappings: Record<string, string> = {
+        na: 'americas',
+        br: 'americas',
+        lan: 'americas',
+        las: 'americas',
+        kr: 'asia',
+        jp: 'asia',
+        eune: 'europe',
+        euw: 'europe',
+        tr: 'europe',
+        ru: 'europe',
+        oce: 'sea',
+        ph: 'sea',
+        sg: 'sea',
+        th: 'sea',
+        vn: 'sea',
+        tw: 'sea',
     }
-    return 'americas'
+
+    const lowercaseRegion = region.toLowerCase()
+
+    return regionMappings[lowercaseRegion] || 'americas'
 }
