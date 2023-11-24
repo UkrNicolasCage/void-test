@@ -12,7 +12,7 @@ COPY ./.env.prod ./.env
 RUN yarn
 
 COPY ./ ./
-COPY ./.env.prod ./.env
+
 
 EXPOSE $PORT
 
