@@ -6,7 +6,7 @@ EXPOSE 4200
 
 RUN yarn set version canary
 
-COPY .yarnrc.yml .
+COPY ./.yarnrc.yml .
 COPY ./package.json .
 COPY ./.env.prod ./.env
 
