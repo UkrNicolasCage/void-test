@@ -23,4 +23,4 @@ jobs:
           run: sudo docker compose -f docker-compose.yml build
 
         - name: Docker Compose Up
-          run: sudo docker compose -f docker-compose.ymlup -d
+          run: sudo docker compose -f docker-compose.yml up -d
