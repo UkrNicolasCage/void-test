@@ -19,5 +19,8 @@ jobs:
             node-version: ${{ matrix.node-version }}
             cache: 'npm'
 
-        - name: Build Docker Containers
-          run:  docker-compose -f "docker-compose.yml" up -d --build
+        - name: Docker Compose Build
+          run: docker compose -f docker-compose.yml build
+
+        - name: Docker Compose Up
+          run: docker compose -f docker-compose.ymlup -d
