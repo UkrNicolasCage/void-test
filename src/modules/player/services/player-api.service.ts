@@ -39,6 +39,7 @@ export class PlayerApiService {
                     headers: this.headers,
                 },
             )
+
             return response.data[0]
         } catch (error) {
             throw new HttpException(error.message, error.status)
