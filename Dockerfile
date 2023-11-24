@@ -4,18 +4,21 @@ WORKDIR /app
 
 EXPOSE 4200
 
-RUN yarn set version canary
+# Set npm version (can be removed if using the default npm version from the Node.js image)
+RUN npm install -g npm@latest
 
 COPY ./package.json .
 COPY ./.env.prod ./.env
 
-RUN yarn
+# Install dependencies using npm
+RUN npm install
 
 COPY ./ ./
 
-
 EXPOSE $PORT
 
-RUN yarn build
+# Build your application
+RUN npm run build
 
-CMD yarn start:prod
+# Start your application
+CMD npm run start:prod
