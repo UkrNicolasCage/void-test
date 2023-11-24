@@ -20,7 +20,7 @@ jobs:
             cache: 'npm'
 
         - name: Docker Compose Build
-          run: docker compose -f docker-compose.yml build
+          run: sudo docker compose -f docker-compose.yml build
 
         - name: Docker Compose Up
-          run: docker compose -f docker-compose.ymlup -d
+          run: sudo docker compose -f docker-compose.ymlup -d
